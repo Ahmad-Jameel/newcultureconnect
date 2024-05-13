@@ -1,0 +1,77 @@
+#nav-sec-pic1 {
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-size: cover;
+  height: calc(100vh - 480px);
+}
+
+.text-image {
+  background-image: url("../../assets/m8.jpeg");
+  background-repeat: repeat;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  font-size: 150px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-family: 'Steelfish Rg', 'helvetica neue', helvetica, arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.text-image h1 {
+  font-family: "Poetsen One", sans-serif;
+  font-weight: 1000;
+  font-style: normal;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .text-image {
+    font-size: 90px; /* Adjust font size for smaller screens */
+  }
+}
+
+/* Media query for even smaller screens */
+@media (max-width: 576px) {
+  .text-image {
+    font-size: 70px; /* Adjust font size for even smaller screens */
+  }
+}
+
+
+.card {
+ 
+  box-shadow: 20px 30px 30px rgba(0, 0, 0, 0.1); /* Change the values as needed */
+}
+
+.heading {
+  font-family: "Playfair Display", serif;
+
+  font-style: normal;
+}
+
+.title{
+  margin-top: 50px;
+}
+
+.title::before{
+  content: '';
+  background: rgb(0, 0, 0);
+  height: 5px;
+  width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  transform: translateY(63px);
+}
+
+.title::after{
+  content: '';
+  background: rgb(0, 0, 0);
+  height: 10px;
+  width: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  display: block;
+  transform: translateY(10px);
+}

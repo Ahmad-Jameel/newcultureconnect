@@ -1,0 +1,149 @@
+*
+{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;  
+}
+  
+.body1
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #bb4d00;
+}
+  
+.container1{
+    position: relative;
+    width: 1600px;
+    max-width: 100%;
+    height: calc(100vh - 40px);
+    background: #000;
+    box-shadow: 0 1px 1px 0 rgb(0, 0, 0, 0.06), 0 2px 5px 0 rgb(0, 0, 0, 0.06);
+    display: flex;
+}
+  
+.container1 .leftside1
+{
+    position: relative;
+    flex: 20%;
+    background: #000000;
+    border-right: 1px solid #000;
+}
+.container1 .rightside2
+{
+    position: relative;
+    flex: 80%;
+    background: #FFFFFF;
+    border-right: 1px solid rgb(0, 0, 0, 0.2);
+}
+  
+
+
+.header1{
+    position:relative;
+    width: 100%;
+    height: 60px;
+    background: #ededed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.header2{
+    position:relative;
+    width: 100%;
+    height: 60px;
+    background: #faf3f3f2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.userimg1{
+    position:relative;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.cover1{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.Nav_icons1{
+    display: flex; 
+}
+.Nav_icons1 li{
+    display: flex;
+    list-style: none;
+    cursor: pointer;
+    color: #51585c;
+    font-size: 1.5em;
+    margin-left: 15px;
+    padding-top: 17px;
+}
+
+
+
+.chatBox1{
+    position: relative;
+    width: 100%;
+    height: calc(100% - 120px);
+    padding: 50px;
+    overflow-y: auto;
+}
+
+/*search box*/
+.chatbox_input1{
+    position: relative;
+    width: 100%;
+    height: 60px;
+    background: #faf3f3f2;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: #000000;
+}
+
+.chatbox_input1 ion-icon{
+    cursor: pointer;
+    font-size: 1.8em;
+    color: #51585c;
+}
+
+.chatbox_input1 ion-icon:nth-child(1){
+    margin-right: 15px;
+}
+
+.chatbox_input1 input{
+    position: relative;
+    width: 95%;
+    margin: 0 170px;
+    padding: 7px 20px;
+    border: 1 solid rgb(0, 0, 0, 0.06);
+    outline: none;
+    border-radius: 30px;
+    font-size: 1em;
+}
+
+.container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
