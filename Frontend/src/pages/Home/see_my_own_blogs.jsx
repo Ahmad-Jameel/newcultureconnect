@@ -36,29 +36,38 @@ export default function Home() {
     navigate("/user/seeBlogs", { state: { blogId: blogId } });
   };
 
+  const handleDelete = async (blogId) => {
+    try {
+      await axios.delete(`${baseURL}delete/blog/${blogId}`);
+      setBlogs(blogs.filter((blog) => blog.id !== blogId));
+      console.log("Blog deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete blog: ", error);
+    }
+  };
+
+  const handleUpdate = (blogId) => {
+    navigate("/updateBlog", { state: { blogId: blogId } });
+  };
+
   return (
     <div>
       <br />
-      <h1
-        className="mb-3 title mb-xl-4 text-uppercase text-center my-2"
-        style={{ fontSize: "38px" }}
-      >
-       My Blogs
+      <h1 className="mb-3 title mb-xl-4 text-uppercase text-center my-2" style={{ fontSize: "38px" }}>
+        My Blogs
       </h1>
       <br />
       <div className="container overflow-hidden">
         <div className="row gy-2 gy-lg-0">
           {blogs.map((blog) => (
             <div className="col-12 col-lg-4 mt-3" key={blog.id}>
-               <article>
-                <div className="card ">
-                  <img
-                    className=" img-fluid m-0"
-                    loading="lazy"
-                    style={{height:300}}
-                    src={`${baseURL}${blog.Blog_Title_Image}`}
-                    alt=""
-                  />
+              <article>
+                <div className="card position-relative">
+                  <div className="card-header d-flex justify-content-end position-absolute top-0 end-0">
+                    <button className="btn btn-danger me-2" onClick={() => handleDelete(blog.id)}>Delete</button>
+                    <button className="btn btn-primary" onClick={() => handleUpdate(blog.id)}>Update</button>
+                  </div>
+                  <img className="img-fluid m-0" loading="lazy" style={{ height: 300, borderRadius: '8px 8px 0px 0px' }} src={`${baseURL}${blog.Blog_Title_Image}`} alt="" />
                   <div className="card-body border bg-white p-4">
                     <div className="entry-header mb-3">
                       <h2 className="card-title entry-title h4 mb-0">
@@ -69,25 +78,18 @@ export default function Home() {
                     </div>
                     <div className="text-justify-center">
                       <p className="card-text entry-summary text-secondary mb-3">
-                      {blog.Blog_Content.substring(0, 100)}
+                        {blog.Blog_Content.substring(0, 100)}
                         ...
                       </p>
                       <div className="text-center">
-                        <a
-                          href="#!"
-                          className="btn bsb-btn-2xl btn-secondary "
-                          style={{ fontSize: 20 }}
-                          onClick={() => navigateToBlogs(blog.id)}
-                        >
+                        <a href="#!" className="btn bsb-btn-2xl btn-secondary" style={{ fontSize: 20 }} onClick={() => navigateToBlogs(blog.id)}>
                           Read More
                         </a>
                       </div>
-                      {/* Three-dotted button for report */}
                     </div>
                   </div>
                 </div>
               </article>
-             
             </div>
           ))}
           <div className="mb-5"></div>

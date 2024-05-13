@@ -15,6 +15,8 @@ export default function UserFeed() {
   const [commentBoxVisible, setCommentBoxVisible] = useState({});
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
 
   const navigateToHomepage = () => {
     navigate("/user/Homepage");
@@ -117,6 +119,36 @@ export default function UserFeed() {
     }));
 };
 
+const searchPosts = async () => {
+  try {
+    const response = await axios.get("/user/search_posts", {
+      params: { q: searchTerm },
+    });
+
+    const users = response.data.users;
+    const combinedMedia = response.data.posts;
+
+    const mappedMedia = combinedMedia.map((media) => {
+      const user = users.find((user) => user.UserID === media.UserID);
+      return { ...media, UserPhoto: user };
+    });
+
+    setMappedMedia(mappedMedia); // Update the state with the fetched posts
+    if (users.length > 0 && users[0].Profile_pic) {
+      setProfileImage(`http://127.0.0.1:5000/${users[0].Profile_pic}`);
+    } else {
+      setProfileImage(pic2);
+    }
+  } catch (error) {
+    console.error("Error fetching search results: ", error);
+  }
+};
+
+useEffect(() => {
+  // Clear the search term when component unmounts or appropriate action is taken
+  return () => setSearchTerm('');
+}, []);
+
 
   const handleReportClick = (post) => {
     const postId = post.VideoID ? post.VideoID : post.ImageID;
@@ -138,14 +170,26 @@ export default function UserFeed() {
               </a>
             </div>
             <div className="td" id="search-form">
-              <form method="get" action="#">
-                <input type="text" placeholder="Search CultureConnect" />
-                <button type="submit">
-                  <i className="material-icons">
-                    <ion-icon name="search-outline"></ion-icon>
-                  </i>
-                </button>
-              </form>
+            <form
+  method="get"
+  action="#"
+  onSubmit={(e) => {
+    e.preventDefault(); // Prevent the default form submit action
+    searchPosts();      // Call the search function when the form is submitted
+  }}
+>
+  <input
+    type="text"
+    placeholder="Search CultureConnect"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  <button type="submit">
+    <i className="material-icons">
+      <ion-icon name="search-outline"></ion-icon>
+    </i>
+  </button>
+</form>
             </div>
             <div className="td" id="f-name-l">
               <span>CultureConnect</span>
@@ -196,8 +240,11 @@ export default function UserFeed() {
                 </div>
               </div> */}
 
-              {mappedMedia.map((post, index) => (
-                <div key={post.id} className="post mt-5">
+{mappedMedia.map((post, index) => (
+  <div 
+    key={post.VideoID ? `video-${post.VideoID}` : `image-${post.ImageID}`} 
+    className="post mt-5"
+  >
                   <div className="">
                     <a
                       href="#"

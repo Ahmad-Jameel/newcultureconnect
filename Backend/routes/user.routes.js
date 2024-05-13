@@ -48,6 +48,8 @@ router.post("/Add_Comment", fuction.add_comment)
 router.get('/fetch_all_comments', fuction.fetch_comment)
 router.post("/payment_with_card", fuction.Payment_via_card)
 
+router.get("/search_posts", fuction.searchPosts);
+router.get('/search_users_by_name', fuction.searchUsersByName);
 
 router.post("/start_chat", fuction.startOrRetrieveChat);
 router.post("/send_message", fuction.sendMessage);

@@ -101,7 +101,7 @@ function App() {
 
 
 <Route path="/user/userprofile" element={<Protected component={<div> <Adds/> <Userprofile/> </div>} allowableuser="user"/>}></Route>
-<Route path="/user/socialhomepage" element={<Protected component={<div><Navbar2/><Socialhomepage/></div>} allowableuser="user"/>}></Route>
+<Route path="/user/socialhomepage" element={<Protected component={<div><Navbar2/><Socialhomepage/><Adds/></div>} allowableuser="user"/>}></Route>
 <Route path="/user/Social_add_post" element={<Protected component={<div> <Adds/><Social_add_post/></div>} allowableuser="user"/>}></Route>
 <Route path="/user/update_post" element={<Protected component={<div> <Adds/><UpdatePost/></div>} allowableuser="user"/>}></Route>
 <Route path="/user/Updtae_prfile" element={<Protected component={<Updtae_prfile/>} allowableuser="user"/>}></Route>

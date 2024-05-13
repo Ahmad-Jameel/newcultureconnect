@@ -884,10 +884,41 @@ const allblogs = async (req, res) => {
 };
 
 
+const searchBlogsByVoiceCommand = async (req, res) => {
+  try {
+    const { voiceCommand } = req.query;
 
+    if (!voiceCommand) {
+      return res.status(400).send('Voice command is required.');
+    }
 
+    // Split the voice command into individual words
+    const keywords = voiceCommand.split(" ");
 
+    // Build the query to search for blogs
+    const query = {
+      where: {
+        [Op.or]: [
+          // Convert both Blog_Title and Blog_Content to lowercase and check for a match
+          sequelize.where(sequelize.fn('LOWER', sequelize.col('Blog_Title')), {
+            [Op.like]: `%${voiceCommand.toLowerCase()}%`
+          }),
+          sequelize.where(sequelize.fn('LOWER', sequelize.col('Blog_Content')), {
+            [Op.like]: `%${voiceCommand.toLowerCase()}%`
+          })
+        ],
+      },
+    };
 
+    // Fetch blogs based on the query
+    const blogs = await Blogs.findAll(query);
+
+    res.send(blogs);
+  } catch (error) {
+    console.error("Failed to retrieve blogs: ", error);
+    res.status(500).send("Failed to retrieve blogs");
+  }
+};
 
 
 
@@ -977,7 +1008,17 @@ const see_Native_profile = async (req, res) => {
 
 };
 
+const deleteBlog = async (req, res) => {
+  try {
+    const { id } = req.body;
 
+    await Blogs.destroy({ where: { BlogsID: id } });
+    res.status(200).send("Blog deleted successfully");
+  } catch (error) {
+    console.error("Failed to delete blog: ", error);
+    res.status(500).send("Failed to delete blog");
+  }
+};
 
 
 
@@ -987,7 +1028,7 @@ module.exports = {
     signUpNative,
     verifyUser,
     chatgpt,
-    
+    deleteBlog,
     verify_forget_Password_email,
     verify_forgetpass,
     change_password,
@@ -1018,6 +1059,8 @@ module.exports = {
     see_specific_blog,
     allblogs,
     all_natives_profile_for_service,
-    see_Native_profile
-};
+    see_Native_profile,
 
+
+    searchBlogsByVoiceCommand
+};

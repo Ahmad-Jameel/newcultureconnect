@@ -1308,6 +1308,98 @@ const fetchAllChatsForUser = async (req, res) => {
 };
 
 
+const searchPosts = async (req, res) => {
+  const searchTerm = req.query.q;  // Assuming the query parameter is named 'q'
+
+  try {
+      // Fetch users whose names match the search term
+      let users = await User.findAll({
+          where: {
+              Name: { [Op.iLike]: `%${searchTerm}%` }  // Case insensitive search
+          },
+          attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo']
+      });
+
+      // Extract user IDs
+      let userIds = users.map(user => user.UserID);
+
+      // Fetch posts by user ID or caption containing the search term
+      const imagePosts = await Image_Post.findAll({
+          where: {
+              [Op.or]: [
+                  { UserID: { [Op.in]: userIds } },
+                  { img_caption: { [Op.iLike]: `%${searchTerm}%` } }
+              ]
+          }
+      });
+
+      const videoPosts = await Video_Post.findAll({
+          where: {
+              [Op.or]: [
+                  { UserID: { [Op.in]: userIds } },
+                  { Captions: { [Op.iLike]: `%${searchTerm}%` } }
+              ]
+          }
+      });
+
+      // If no user matches by name but posts are found by captions, fetch those users
+      if (users.length === 0 && (imagePosts.length > 0 || videoPosts.length > 0)) {
+          const postUserIDs = [...new Set([...imagePosts, ...videoPosts].map(post => post.UserID))];
+          users = await User.findAll({
+              where: { UserID: { [Op.in]: postUserIDs } },
+              attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo']
+          });
+      }
+
+      // Manual joining of user details to posts
+      const combinedPosts = [...imagePosts, ...videoPosts].map(post => {
+          const user = users.find(u => u.UserID === post.UserID);
+          return {
+              ...post.dataValues,
+              User: user ? {
+                  Name: user.Name,
+                  Profile_pic: user.Profile_pic,
+                  Cover_photo: user.Cover_photo
+              } : null
+          };
+      });
+
+      // Sort combined posts by creation date
+      combinedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      // Send response with users and their posts
+      res.status(200).json({
+          users,
+          posts: combinedPosts
+      });
+  } catch (error) {
+      console.error("Error in searchPosts: ", error.message);
+      res.status(500).send("Internal Server Error");
+  }
+};
+
+
+
+const searchUsersByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    const users = await User.findAll({
+      where: {
+        Name: {
+          [Op.iLike]: `%${name}%` // This assumes you're using PostgreSQL
+        }
+      },
+      attributes: ["UserID", "Name", "Profile_pic", "is_Online"],
+    });
+
+    res.send(users);
+  } catch (error) {
+    console.error("Failed to search users: ", error);
+    res.status(500).send("Failed to search users");
+  }
+};
+
 
 module.exports = {
   signInUser,
@@ -1321,14 +1413,14 @@ module.exports = {
   allMedia,
   update_Profile,
   retrive_user_data,
-
+  searchUsersByName,
   update_image_Post,
   update_video_Post,
   deleteImagePost,
   deleteVideoPost,
   get_imagePost_for_update,
   get_videoPost_for_update,
-
+  searchPosts, 
   allusers,
   see_other_user_profile,
   logout,
@@ -1352,4 +1444,6 @@ module.exports = {
   receiveMessage,
   chatHistory,
   fetchAllChatsForUser
+  
 };
+

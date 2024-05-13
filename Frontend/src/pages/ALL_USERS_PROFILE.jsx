@@ -7,9 +7,13 @@ import { useNavigate } from "react-router-dom";
 
 export default function ALL_USERS_PROFILE() {
   const [users, setUsers] = useState([]);
-  const [openedUserId, setOpenedUserId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const baseURL = "http://127.0.0.1:5000/";
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -57,9 +61,26 @@ export default function ALL_USERS_PROFILE() {
     setOpenedUserId(openedUserId === UserID ? null : UserID);
   };
 
+  const fetchUsers = async (name = '') => {
+    try {
+      const currentUserId = JSON.parse(localStorage.getItem("user")).id;
+      const response = await axios.get(name ? "/user/search_users_by_name" : "/user/allusers_in_plateform", {
+        params: name ? { name } : { excludeId: currentUserId },
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    fetchUsers(searchTerm);
+  };
+
   return (
     <>
-     <h1
+      <h1
         className="mb-3 title mb-xl-4 text-uppercase text-center my-5"
         style={{ fontSize: "38px" }}
       >
@@ -68,68 +89,80 @@ export default function ALL_USERS_PROFILE() {
 
       <div className="container">
         <div className="row my-5">
-        {users.map((user) => (
-          <div className="col-md-4" key={user.id}>
-            <div className="card mb-3" style={{ borderRadius: 20 }}>
-              <div className="row g-0">
-                <div className="col-lg-4 ">
-                  <img
-                    style={{height:"100%"}}
-                    className=""
-                    src={
-                      user.Profile_pic
-                        ? `${baseURL}${user.Profile_pic}`
-                        : defaultProfilePic
-                    }
-                    alt="Profile"
-                  />
-                </div>
-                <div className="col-lg-8">
-                  <div className="card-body">
-                    <div className="d-flex">
-                    <h2 style={{ fontSize: 28 }} className="mb-1">
-                      {user.Name}
-                    </h2>
-                    <p
-                  className={` top-0 right-0  w-4 h-4 border-2 border-white rounded-full ${
-                    user.is_Online ? "bg-green-500" : "bg-red-500"
-                  }`}
-                ></p>
-
-                    </div>
-                    
-                    <br />
-                    {/* <p className="text-secondary mb-0">{native.service}</p> */}
-
-                    {/* <p style={{}}>{native.service.substring(0, 30)}</p> */}
-                    <div className="d-flex">
-                      <div className="my-3">
-                        <a
-                          href="#!"
-                          className="btn bsb-btn-2xl btn-primary "
-                          style={{ fontSize: 20 }}
-                          onClick={() => handleChatWithUser(user.UserID)}
-                        >
-                          Chat
-                        </a>
+        <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="Search CultureConnect"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button type="submit">
+              <i className="material-icons">
+                <ion-icon name="search-outline"></ion-icon>
+              </i>
+            </button>
+          </form>
+          {users.map((user) => (
+            <div className="col-md-4" key={user.id}>
+              <div className="card mb-3" style={{ borderRadius: 20 }}>
+                <div className="row g-0">
+                  <div className="col-lg-4 ">
+                    <img
+                      style={{ height: "100%" }}
+                      className=""
+                      src={
+                        user.Profile_pic
+                          ? `${baseURL}${user.Profile_pic}`
+                          : defaultProfilePic
+                      }
+                      alt="Profile"
+                    />
+                  </div>
+                  <div className="col-lg-8">
+                    <div className="card-body">
+                      <div className="d-flex">
+                        <h2 style={{ fontSize: 28 }} className="mb-1">
+                          {user.Name}
+                        </h2>
+                        <p
+                          className={` top-0 right-0  w-4 h-4 border-2 border-white rounded-full ${
+                            user.is_Online ? "bg-green-500" : "bg-red-500"
+                          }`}
+                        ></p>
                       </div>
-                      <div className="my-3 mx-3">
-                        <a
-                          href="#!"
-                          className="btn bsb-btn-2xl btn-success "
-                          style={{ fontSize: 20 }}
-                          onClick={() => handleSeeProfile(user.UserID)}
-                        >
-                          Profile
-                        </a>
+
+                      <br />
+                      {/* <p className="text-secondary mb-0">{native.service}</p> */}
+
+                      {/* <p style={{}}>{native.service.substring(0, 30)}</p> */}
+                      <div className="d-flex">
+                        <div className="my-3">
+                          <a
+                            href="#!"
+                            className="btn bsb-btn-2xl btn-primary "
+                            style={{ fontSize: 20 }}
+                            onClick={() => handleChatWithUser(user.UserID)}
+                          >
+                            Chat
+                          </a>
+                        </div>
+                        <div className="my-3 mx-3">
+                          <a
+                            href="#!"
+                            className="btn bsb-btn-2xl btn-success "
+                            style={{ fontSize: 20 }}
+                            onClick={() => handleSeeProfile(user.UserID)}
+                          >
+                            Profile
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       </div>
     </>

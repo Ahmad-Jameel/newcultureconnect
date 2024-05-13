@@ -47,6 +47,8 @@ router.get('/see_other_user_profile', fuction.see_other_user_profile)
 // router.get("/chatbox", fuction.add_chats)
 
 // router.get("/allsocialmediaposts", fuction.allSocialMediaPosts)
+router.delete("/delete_blog", fuction.deleteBlog);
+router.get('/voicecommandtogetblogs', fuction.searchBlogsByVoiceCommand)
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');
