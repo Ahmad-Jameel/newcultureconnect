@@ -1,0 +1,21 @@
+.img-div {
+    overflow: hidden;
+  }
+  
+  .card-img-top {
+    transition: transform 0.3s ease;
+    border-radius:10px 10px 0px 0px;
+  }
+  
+  .card-img-top:hover {
+    cursor: pointer;
+    transform: scale(1.2);
+  }
+  
+  .card{
+    border-radius: 10px;
+  }
+
+  .card-body{
+    border-radius:0px 0px 10px 10px;
+  }
