@@ -40,7 +40,8 @@ router.get('/search', fuction.search_natives);
 
 
 router.post('/report', fuction.report_native);
-
+router.post("/rate", fuction.rate_native);
+router.get("/average_ratings", fuction.get_average_ratings);
 
 
 

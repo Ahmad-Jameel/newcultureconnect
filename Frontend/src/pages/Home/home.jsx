@@ -27,7 +27,9 @@ export default function Home() {
     }, []);
 
     const navigateToBlogs = (blogId) => {
+      console.log("---------------sending to see blog", blogId)
         navigate("/user/seeBlogs", { state: { blogId: blogId } });
+
     };
 
     const toggleReportOption = (blogId) => {
@@ -186,7 +188,7 @@ export default function Home() {
                       </p>
 
                       <div className="text-center">
-                        <a href="#!" className="btn bsb-btn-2xl btn-secondary" style={{ fontSize: 20 }} onClick={() => navigateToBlogs(blog.BlogsID)}>
+                        <a href="#!" className="btn bsb-btn-2xl btn-secondary" style={{ fontSize: 20 }} onClick={() => navigateToBlogs(blog.id)}>
                           Read More
                         </a>
                       </div>

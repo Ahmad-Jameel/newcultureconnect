@@ -14,6 +14,7 @@ const Chatbox = require("../models/chatbox.model")
 const Blogs = require("../models/blogs.model");
 const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
 const ReportofNative = require("../models/native.report.model")
+const Rating = require("../models/rating.model")
 
 const { OpenAI } = require('openai');
 require('dotenv').config();
@@ -1145,25 +1146,75 @@ const report_native = async (req, res) => {
   try {
     const { nativeId, reporterId, reason } = req.body;
 
+    // Check if a report from this reporter for this native already exists
     let report = await ReportofNative.findOne({ where: { nativeId, reporterId } });
 
     if (report) {
-      report.count += 1;
-      await report.save();
+      // If the report already exists, send a message indicating so
+      res.status(400).send("You have already reported this native.");
     } else {
+      // If the report does not exist, create a new one
       report = await ReportofNative.create({
         nativeId,
         reporterId,
         reason,
+        count: 1, // Initialize count to 1 for the new report
       });
-    }
 
-    res.status(201).send(report);
+      res.status(201).send(report);
+    }
   } catch (error) {
     console.error("Failed to report native: ", error);
     res.status(500).send("Failed to report native");
   }
 };
+
+
+const rate_native = async (req, res) => {
+  try {
+    const { nativeId, userId, rating } = req.body;
+
+    // Check if a rating from this user for this native already exists
+    let userRating = await Rating.findOne({ where: { nativeId, userId } });
+
+    if (userRating) {
+      return res.status(400).send("You have already given rating native."); // Ensure we return early to avoid sending another response
+    } 
+
+    // Create a new rating
+    userRating = await Rating.create({
+      nativeId,
+      userId,
+      rating,
+    });
+
+    res.status(201).send(userRating);
+  } catch (error) {
+    console.error("Failed to rate native: ", error);
+    res.status(500).send("Failed to rate native");
+  }
+};
+
+
+const get_average_ratings = async (req, res) => {
+  try {
+    const ratings = await Rating.findAll({
+      attributes: [
+        'nativeId',
+        [sequelize.fn('AVG', sequelize.col('rating')), 'averageRating']
+      ],
+      group: ['nativeId']
+    });
+
+
+    console.log("=====================rating sof natives", ratings);
+    res.status(200).send(ratings);
+  } catch (error) {
+    console.error("Failed to fetch average ratings: ", error);
+    res.status(500).send("Failed to fetch average ratings");
+  }
+};
+
 
 module.exports = {
     signInUser,
@@ -1208,5 +1259,7 @@ module.exports = {
     get_blog_details,
     update_blog,
     search_natives,
-    report_native
+    report_native,
+    rate_native,
+    get_average_ratings
 };
