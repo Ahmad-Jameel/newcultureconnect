@@ -46,9 +46,6 @@ export default function Navbar2() {
                 <a href="/addNotification" className="block animated-link">Add Notification</a>
               </li>
               <li className="mb-2">
-                <a href="/admin_check_payment" className="block animated-link">Payment</a>
-              </li>
-              <li className="mb-2">
                 <a href="/admin_check_payment" className="block animated-link">Logout</a>
               </li>
             </ul>

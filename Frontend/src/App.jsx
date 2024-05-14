@@ -43,6 +43,7 @@ import Notifications from './pages/userprofile/notification'
 import AdminCheckPayment from "./pages/Payment/paymentpage"
 import AdminSignIn from "./pages/Admin/adminSignIn"
 import PaymentByCard from "./pages/Payment/payment_with _card"
+import UpdateBlog from "./pages/Home/updateblog"
 
 import { UserContext } from "./Context/UserContext";
 
@@ -122,6 +123,7 @@ function App() {
 <Route path="/user/native_my_own_blog" element={<Protected component={<><Navbar2/><MyOwnBlog/><Footerpage/></>} allowableuser="user"/>}></Route>
 <Route path="/user/NativeServices" element={<Protected component={<><Navbar2/><Servicepage/><Footerpage/></>} allowableuser="user"/>}></Route>
 
+<Route path="/user/updateBlog" element={<Protected component={<><Navbar2/><UpdateBlog/><Footerpage/></>} allowableuser="user"/>}></Route>
 <Route path="/user/Feedback" element={<Protected component={<><Navbar2/><Feedbackpage/><Footerpage/></>} allowableuser="user"/>}></Route>
 
 

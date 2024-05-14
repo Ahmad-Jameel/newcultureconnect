@@ -34,6 +34,13 @@ router.get("/see_native_profile", fuction.see_Native_profile)
 router.get("/my_blogs", fuction.My_native_all_blogs)
 
 router.get('/see_other_user_profile', fuction.see_other_user_profile)
+router.get('/blog_details/:id', fuction.get_blog_details);
+router.post('/update_blog/:id', fuction.update_blog);
+router.get('/search', fuction.search_natives);
+
+
+router.post('/report', fuction.report_native);
+
 
 
 // //--------for_social_post--------------

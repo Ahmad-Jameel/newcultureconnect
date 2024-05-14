@@ -13,6 +13,7 @@ const Chatbox = require("../models/chatbox.model")
 
 const Blogs = require("../models/blogs.model");
 const NotificationsOpenOrNot = require("../models/notfication_open_or_not")
+const ReportofNative = require("../models/native.report.model")
 
 const { OpenAI } = require('openai');
 require('dotenv').config();
@@ -920,8 +921,6 @@ const searchBlogsByVoiceCommand = async (req, res) => {
   }
 };
 
-
-
 //---------get sepecific social post data---------
 
 const get_imagePost_for_update = (req, res) => {
@@ -973,18 +972,48 @@ const get_videoPost_for_update = (req, res) => {
 
 
 //-------------------------------------------------------------------see all natives profiles for blogs
+// const all_natives_profile_for_service = async (req, res) => {
+//   try {
+
+//     const users = await Native.findAll();
+
+//     res.send(users);
+//   } catch (error) {
+//     console.error("Failed to retrieve data: ", error);
+//     res.status(500).send("Failed to retrieve data");
+//   }
+// };
+
+
+
 const all_natives_profile_for_service = async (req, res) => {
   try {
+    const currentUserId = req.query.userId;
 
-    const users = await Native.findAll();
+    // Check if the current user is in the users table
+    const user = await User.findOne({ where: { UserID: currentUserId } });
 
-    res.send(users);
+    let natives;
+    if (user) {
+      // If the user is in the users table, send all native profiles
+      natives = await Native.findAll();
+    } else {
+      // If the user is in the natives table, exclude the current user from the native profiles
+      natives = await Native.findAll({
+        where: {
+          UserID: {
+            [Op.ne]: currentUserId,
+          },
+        },
+      });
+    }
+
+    res.send(natives);
   } catch (error) {
     console.error("Failed to retrieve data: ", error);
     res.status(500).send("Failed to retrieve data");
   }
 };
-
 
 
 
@@ -1022,6 +1051,119 @@ const deleteBlog = async (req, res) => {
 
 
 
+const get_blog_details = async (req, res) => {
+  const blogId = req.params.id;  // Assume the ID is passed as a URL parameter
+
+  try {
+      const blog = await Blogs.findOne({
+          where: { BlogsID: blogId }
+      });
+
+      if (blog) {
+          res.json(blog);  // Send the blog data as JSON
+      } else {
+          res.status(404).send('Blog not found');
+      }
+  } catch (error) {
+      console.error("Failed to retrieve blog details:", error);
+      res.status(500).send(error.message);
+  }
+};
+
+
+const update_blog = async (req, res) => {
+  const blogId = req.params.id;  // Assume the ID is passed as a URL parameter
+
+  try {
+      await Blog_image_upload.fields([
+          { name: 'Blog_Title_Image', maxCount: 1 },
+          { name: 'Blog_Content_Image', maxCount: 1 }
+      ])(req, res, async (err) => {
+          if (err) {
+              return res.status(500).send(err.message);
+          }
+
+          const { BlogTitle, blogContent, UserID } = req.body;
+          const updateValues = {
+              UserID: UserID,
+              Blog_Title: BlogTitle,
+              Blog_Content: blogContent
+          };
+
+          // Update image paths only if new images are uploaded
+          if (req.files['Blog_Title_Image']) {
+              updateValues.Blog_Title_Image = req.files['Blog_Title_Image'][0].path;
+          }
+          if (req.files['Blog_Content_Image']) {
+              updateValues.Blog_Content_Image = req.files['Blog_Content_Image'][0].path;
+          }
+
+          try {
+              const result = await Blogs.update(updateValues, {
+                  where: { BlogsID: blogId }
+              });
+              if (result == 0) {
+                  return res.status(404).send('Blog not found');
+              }
+              res.send('Blog updated successfully');
+          } catch (updateError) {
+              console.error("Error updating the blog:", updateError);
+              res.status(500).send(updateError.message);
+          }
+      });
+  } catch (error) {
+      console.error("Error processing update:", error);
+      res.status(500).send(error.message);
+  }
+};
+
+
+
+const search_natives = async (req, res) => {
+  try {
+    const query = req.query.query;
+
+    const natives = await Native.findAll({
+      where: {
+        [Op.or]: [
+          { Name: { [Op.like]: `%${query}%` } },
+          { service: { [Op.like]: `%${query}%` } },
+        ],
+      },
+    });
+
+    res.send(natives);
+  } catch (error) {
+    console.error("Failed to search native profiles: ", error);
+    res.status(500).send("Failed to search native profiles");
+  }
+};
+
+
+
+const report_native = async (req, res) => {
+  try {
+    const { nativeId, reporterId, reason } = req.body;
+
+    let report = await ReportofNative.findOne({ where: { nativeId, reporterId } });
+
+    if (report) {
+      report.count += 1;
+      await report.save();
+    } else {
+      report = await ReportofNative.create({
+        nativeId,
+        reporterId,
+        reason,
+      });
+    }
+
+    res.status(201).send(report);
+  } catch (error) {
+    console.error("Failed to report native: ", error);
+    res.status(500).send("Failed to report native");
+  }
+};
 
 module.exports = {
     signInUser,
@@ -1062,5 +1204,9 @@ module.exports = {
     see_Native_profile,
 
 
-    searchBlogsByVoiceCommand
+    searchBlogsByVoiceCommand,
+    get_blog_details,
+    update_blog,
+    search_natives,
+    report_native
 };

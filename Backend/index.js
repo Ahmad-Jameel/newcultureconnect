@@ -107,9 +107,53 @@ io.on('connection', (socket) => {
 });
 
 
+// Socket.IO handling for video call functionalities
+io.on('connection', (socket) => {
+  // Joining a video call room
+  socket.on('join_call', async ({ senderId, receiverId }) => {
+    const room = `${senderId}-${receiverId}`;
+    socket.join(room);
+    console.log(`User joined call room: ${room}`);
+
+    // Notify the receiver that the sender has joined the call
+    socket.to(room).emit('user_joined_call');
+  });
+
+  socket.on('offer', ({ receiverId, offer }) => {
+    socket.to(receiverId).emit('receive_offer', { offer });
+  });
+  
+  // Handling answer
+  socket.on('answer', ({ receiverId, answer }) => {
+    socket.to(receiverId).emit('receive_answer', { answer });
+  });
+  
+  // Handling ICE candidate
+  socket.on('ice_candidate', ({ receiverId, candidate }) => {
+    socket.to(receiverId).emit('receive_ice_candidate', { candidate });
+  });
+
+  // Leaving a video call room
+  socket.on('leave_call', ({ senderId, receiverId }) => {
+    const room = `${senderId}-${receiverId}`;
+    socket.leave(room);
+    console.log(`User left call room: ${room}`);
+
+    // Notify the other user that the call has ended
+    socket.to(room).emit('call_ended');
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+});
+
+
+
 // Start server and synchronize database
 sequelize.sync().then(() => {
     server.listen(port, () => {
         console.log(`Server running on http://${hostname}:${port}/`);
     });
 });
+
