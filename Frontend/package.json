@@ -11,6 +11,7 @@
   },
   "proxy": "http://127.0.0.1:5000",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.2",
     "@stripe/react-stripe-js": "^2.6.2",
     "@stripe/stripe-js": "^3.1.0",
     "axios": "^1.6.2",

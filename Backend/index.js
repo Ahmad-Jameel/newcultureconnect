@@ -57,8 +57,6 @@ app.get("*", (req, res) => {
 });
 
 
-
-// Socket.IO handling for chat functionalities
 io.on('connection', (socket) => {
   socket.on('join_room', async (roomId) => {
     socket.join(roomId);
@@ -80,12 +78,12 @@ io.on('connection', (socket) => {
       console.error("Error loading messages for room:", error);
     }
   });
-  
+
   socket.on('leave_room', (roomId) => {
     socket.leave(roomId);
     console.log(`User left room: ${roomId}`);
   });
-  
+
   socket.on('send_message', async (data) => {
     const { senderId, receiverId, message } = data;
 
@@ -101,15 +99,15 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('end_call', ({ senderId, receiverId }) => {
+    io.to(senderId).to(receiverId).emit('call_ended');
+  });
+
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
   });
-});
 
-
-// Socket.IO handling for video call functionalities
-io.on('connection', (socket) => {
-  // Joining a video call room
+  // Handling video call functionalities
   socket.on('join_call', async ({ senderId, receiverId }) => {
     const room = `${senderId}-${receiverId}`;
     socket.join(room);
@@ -122,18 +120,15 @@ io.on('connection', (socket) => {
   socket.on('offer', ({ receiverId, offer }) => {
     socket.to(receiverId).emit('receive_offer', { offer });
   });
-  
-  // Handling answer
+
   socket.on('answer', ({ receiverId, answer }) => {
     socket.to(receiverId).emit('receive_answer', { answer });
   });
-  
-  // Handling ICE candidate
+
   socket.on('ice_candidate', ({ receiverId, candidate }) => {
     socket.to(receiverId).emit('receive_ice_candidate', { candidate });
   });
 
-  // Leaving a video call room
   socket.on('leave_call', ({ senderId, receiverId }) => {
     const room = `${senderId}-${receiverId}`;
     socket.leave(room);
@@ -147,8 +142,6 @@ io.on('connection', (socket) => {
     console.log(`Client disconnected: ${socket.id}`);
   });
 });
-
-
 
 // Start server and synchronize database
 sequelize.sync().then(() => {

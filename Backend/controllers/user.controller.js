@@ -1328,29 +1328,24 @@ const sendMessage = async (req, res) => {
   const { senderId, receiverId, message } = req.body;
 
   try {
-    // Find or create a chat session between users
-    let chat = await Chatbox.findOrCreate({
-      where: {
-        [Op.or]: [
-          { sender_id: senderId, Receiver_Id: receiverId },
-          { sender_id: receiverId, Receiver_Id: senderId }
-        ]
-      },
-      defaults: { // Set defaults if creating a new chat session
-        sender_id: senderId,
-        Receiver_Id: receiverId,
-        message: message  // Initialize with the first message
-      }
+    const chat = await Chatbox.create({
+      sender_id: senderId,
+      Receiver_Id: receiverId,
+      message,
+      unread: true // Mark the message as unread
     });
 
-    // If chat already exists and not just created, update the message
-    if (!chat[1]) {
-      chat[0].message = message;
-      await chat[0].save();
-    }
+    const lastMessageTime = chat.createdAt;
 
-    // Notify the sender that the message was sent successfully
-    res.status(200).send({ success: true, message: "Message sent successfully" });
+    io.to(senderId).to(receiverId).emit('receive_message', {
+      senderId,
+      receiverId,
+      message,
+      lastMessageTime,
+      unread: true
+    });
+
+    res.status(200).send({ success: true, message: "Message sent successfully", lastMessageTime });
   } catch (error) {
     console.error("Error sending message:", error);
     res.status(500).send("Internal server error");
@@ -1389,7 +1384,14 @@ const chatHistory = async (req, res) => {
       },
       order: [['createdAt', 'ASC']]
     });
-    res.json(messages);
+    
+    const lastMessage = messages[messages.length - 1];
+    const lastMessageTime = lastMessage ? lastMessage.createdAt : null;
+
+    res.json({
+      messages,
+      lastMessageTime
+    });
   } catch (error) {
     console.error("Error retrieving chat history:", error);
     res.status(500).send("Internal server error");
@@ -1443,6 +1445,28 @@ const handleAnswer = (req, res) => {
 
 
 
+const markMessagesAsRead = async (req, res) => {
+  const { senderId, receiverId } = req.body;
+
+  try {
+    await Chatbox.update(
+      { unread: false },
+      {
+        where: {
+          sender_id: senderId,
+          Receiver_Id: receiverId,
+          unread: true
+        }
+      }
+    );
+    res.status(200).send({ success: true, message: "Messages marked as read" });
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
 module.exports = {
   signInUser,
   signUpUser,
@@ -1488,5 +1512,6 @@ module.exports = {
   chatHistory,
   receiveMessage,
   sendMessage,
+  markMessagesAsRead
 };
 
