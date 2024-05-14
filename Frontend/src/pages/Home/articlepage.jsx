@@ -9,6 +9,9 @@ export default function ArticlePage() {
   const { blogId } = location.state || {};
   const [blogData, setBlogData] = useState(null);
 
+
+  console.log("-------------------blog id coming", blogId);
+
   useEffect(() => {
     const fetchBlogData = async () => {
       try {

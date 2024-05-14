@@ -1467,6 +1467,7 @@ const markMessagesAsRead = async (req, res) => {
 };
 
 
+
 module.exports = {
   signInUser,
   signUpUser,
@@ -1476,6 +1477,7 @@ module.exports = {
   change_password,
   upload_video_Post,
   add_image_Post,
+
   allMedia,
   update_Profile,
   retrive_user_data,
@@ -1492,6 +1494,7 @@ module.exports = {
   logout,
   add_chats,
   check_chat_exist_or_not,
+
   allSocialMediaPosts,
   chatgpt,
 
@@ -1512,6 +1515,7 @@ module.exports = {
   chatHistory,
   receiveMessage,
   sendMessage,
-  markMessagesAsRead
+  markMessagesAsRead,
+  
 };
 

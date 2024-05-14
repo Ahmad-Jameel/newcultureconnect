@@ -86,20 +86,16 @@ export default function Navbar2() {
           <label for="check" class="checkbtn" id="checkbtnn1">
             <i class="fas fa-bars"></i>
           </label>
-          {/* <img src={logo} style={{width:50, }} alt="" /> */}
           <label id="my-logo1">CultureConnect</label>
 
           <ul id="ul-design1">
-            <li className="li-design1">
-              <a className="my-nav-link1" onClick={handleNotificationCLick}>
-                {notificationOpen && <Notification userId={user.id} />}
-                <i
-                  className={`fas fa-bell ${
-                    hasNotification ? "ring-animation" : ""
-                  }`}
-                ></i>
-              </a>
-            </li>
+
+          <li className="li-design1">
+  <a className="my-nav-link1" onClick={handleNotificationCLick}>
+  {notificationOpen && <Notification userId={user.id} />}
+    <i className={`fas fa-bell ${hasNotification ? "ring-animation" : ""}`}></i>
+  </a>
+</li>
 
             <li class="li-design1">
               <a
