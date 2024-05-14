@@ -61,6 +61,7 @@ router.get("/user/chats/:userId", fuction.fetchAllChatsForUser);
 router.post("/ice_candidate", fuction.handleIceCandidate);
 router.post("/offer", fuction.handleOffer);
 router.post("/answer", fuction.handleAnswer);
+router.post("/mark_messages_as_read", fuction.markMessagesAsRead);
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');

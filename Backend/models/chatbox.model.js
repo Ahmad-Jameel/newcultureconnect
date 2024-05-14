@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../config");
 
-//------create table with feilds--------
+// Create table with fields
 const Chatbox = sequelize.define("chatbox", {
   sender_id: {
     type: DataTypes.STRING,
@@ -13,6 +13,10 @@ const Chatbox = sequelize.define("chatbox", {
   },
   message: {
     type: DataTypes.STRING,
+  },
+  unread: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
 });
 
