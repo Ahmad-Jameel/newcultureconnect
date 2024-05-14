@@ -1181,6 +1181,115 @@ const chatgpt = async (req, res) => {
 
 
 // Chat controller to start a new chat session or retrieve an existing one
+
+
+
+// Function to send a message in a chat
+
+
+// Function to receive messages from a chat
+
+
+
+
+
+
+
+
+const searchPosts = async (req, res) => {
+  const searchTerm = req.query.q;  // Assuming the query parameter is named 'q'
+
+  try {
+      // Fetch users whose names match the search term
+      let users = await User.findAll({
+          where: {
+              Name: { [Op.iLike]: `%${searchTerm}%` }  // Case insensitive search
+          },
+          attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo']
+      });
+
+      // Extract user IDs
+      let userIds = users.map(user => user.UserID);
+
+      // Fetch posts by user ID or caption containing the search term
+      const imagePosts = await Image_Post.findAll({
+          where: {
+              [Op.or]: [
+                  { UserID: { [Op.in]: userIds } },
+                  { img_caption: { [Op.iLike]: `%${searchTerm}%` } }
+              ]
+          }
+      });
+
+      const videoPosts = await Video_Post.findAll({
+          where: {
+              [Op.or]: [
+                  { UserID: { [Op.in]: userIds } },
+                  { Captions: { [Op.iLike]: `%${searchTerm}%` } }
+              ]
+          }
+      });
+
+      // If no user matches by name but posts are found by captions, fetch those users
+      if (users.length === 0 && (imagePosts.length > 0 || videoPosts.length > 0)) {
+          const postUserIDs = [...new Set([...imagePosts, ...videoPosts].map(post => post.UserID))];
+          users = await User.findAll({
+              where: { UserID: { [Op.in]: postUserIDs } },
+              attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo']
+          });
+      }
+
+      // Manual joining of user details to posts
+      const combinedPosts = [...imagePosts, ...videoPosts].map(post => {
+          const user = users.find(u => u.UserID === post.UserID);
+          return {
+              ...post.dataValues,
+              User: user ? {
+                  Name: user.Name,
+                  Profile_pic: user.Profile_pic,
+                  Cover_photo: user.Cover_photo
+              } : null
+          };
+      });
+
+      // Sort combined posts by creation date
+      combinedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      // Send response with users and their posts
+      res.status(200).json({
+          users,
+          posts: combinedPosts
+      });
+  } catch (error) {
+      console.error("Error in searchPosts: ", error.message);
+      res.status(500).send("Internal Server Error");
+  }
+};
+
+
+
+const searchUsersByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    const users = await User.findAll({
+      where: {
+        Name: {
+          [Op.iLike]: `%${name}%` // This assumes you're using PostgreSQL
+        }
+      },
+      attributes: ["UserID", "Name", "Profile_pic", "is_Online"],
+    });
+
+    res.send(users);
+  } catch (error) {
+    console.error("Failed to search users: ", error);
+    res.status(500).send("Failed to search users");
+  }
+};
+
+
+// Chat controller to start a new chat session or retrieve an existing one
 const startOrRetrieveChat = async (req, res) => {
   const { senderId, receiverId } = req.body;
 
@@ -1308,97 +1417,30 @@ const fetchAllChatsForUser = async (req, res) => {
 };
 
 
-const searchPosts = async (req, res) => {
-  const searchTerm = req.query.q;  // Assuming the query parameter is named 'q'
 
-  try {
-      // Fetch users whose names match the search term
-      let users = await User.findAll({
-          where: {
-              Name: { [Op.iLike]: `%${searchTerm}%` }  // Case insensitive search
-          },
-          attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo']
-      });
-
-      // Extract user IDs
-      let userIds = users.map(user => user.UserID);
-
-      // Fetch posts by user ID or caption containing the search term
-      const imagePosts = await Image_Post.findAll({
-          where: {
-              [Op.or]: [
-                  { UserID: { [Op.in]: userIds } },
-                  { img_caption: { [Op.iLike]: `%${searchTerm}%` } }
-              ]
-          }
-      });
-
-      const videoPosts = await Video_Post.findAll({
-          where: {
-              [Op.or]: [
-                  { UserID: { [Op.in]: userIds } },
-                  { Captions: { [Op.iLike]: `%${searchTerm}%` } }
-              ]
-          }
-      });
-
-      // If no user matches by name but posts are found by captions, fetch those users
-      if (users.length === 0 && (imagePosts.length > 0 || videoPosts.length > 0)) {
-          const postUserIDs = [...new Set([...imagePosts, ...videoPosts].map(post => post.UserID))];
-          users = await User.findAll({
-              where: { UserID: { [Op.in]: postUserIDs } },
-              attributes: ['UserID', 'Name', 'Profile_pic', 'Cover_photo']
-          });
-      }
-
-      // Manual joining of user details to posts
-      const combinedPosts = [...imagePosts, ...videoPosts].map(post => {
-          const user = users.find(u => u.UserID === post.UserID);
-          return {
-              ...post.dataValues,
-              User: user ? {
-                  Name: user.Name,
-                  Profile_pic: user.Profile_pic,
-                  Cover_photo: user.Cover_photo
-              } : null
-          };
-      });
-
-      // Sort combined posts by creation date
-      combinedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      // Send response with users and their posts
-      res.status(200).json({
-          users,
-          posts: combinedPosts
-      });
-  } catch (error) {
-      console.error("Error in searchPosts: ", error.message);
-      res.status(500).send("Internal Server Error");
-  }
+const handleIceCandidate = (req, res) => {
+  const { senderId, receiverId, candidate } = req.body;
+  // Broadcast the ICE candidate to the other user
+  io.to(`${receiverId}-${senderId}`).emit('ice_candidate', { candidate });
+  res.status(200).send({ success: true });
 };
 
-
-
-const searchUsersByName = async (req, res) => {
-  try {
-    const { name } = req.query;
-
-    const users = await User.findAll({
-      where: {
-        Name: {
-          [Op.iLike]: `%${name}%` // This assumes you're using PostgreSQL
-        }
-      },
-      attributes: ["UserID", "Name", "Profile_pic", "is_Online"],
-    });
-
-    res.send(users);
-  } catch (error) {
-    console.error("Failed to search users: ", error);
-    res.status(500).send("Failed to search users");
-  }
+// Function to handle WebRTC offer messages
+const handleOffer = (req, res) => {
+  const { senderId, receiverId, offer } = req.body;
+  // Broadcast the offer to the other user
+  io.to(`${receiverId}-${senderId}`).emit('offer', { offer });
+  res.status(200).send({ success: true });
 };
+
+// Function to handle WebRTC answer messages
+const handleAnswer = (req, res) => {
+  const { senderId, receiverId, answer } = req.body;
+  // Broadcast the answer to the other user
+  io.to(`${receiverId}-${senderId}`).emit('answer', { answer });
+  res.status(200).send({ success: true });
+};
+
 
 
 module.exports = {
@@ -1438,12 +1480,13 @@ module.exports = {
   fetch_comment,
   Payment_via_card,
 
-
   startOrRetrieveChat,
-  sendMessage,
-  receiveMessage,
+  handleAnswer,
+  handleOffer,
+  handleIceCandidate,
+  fetchAllChatsForUser, 
   chatHistory,
-  fetchAllChatsForUser
-  
+  receiveMessage,
+  sendMessage,
 };
 

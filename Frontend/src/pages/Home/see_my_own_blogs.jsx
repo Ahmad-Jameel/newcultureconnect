@@ -36,18 +36,20 @@ export default function Home() {
     navigate("/user/seeBlogs", { state: { blogId: blogId } });
   };
 
-  const handleDelete = async (blogId) => {
+  const handleDelete  = async (blogId) => {
     try {
-      await axios.delete(`${baseURL}delete/blog/${blogId}`);
-      setBlogs(blogs.filter((blog) => blog.id !== blogId));
-      console.log("Blog deleted successfully!");
+      await axios.delete(`${baseURL}native/delete_blog`, {
+        data: { id: blogId },
+      });
+      // Filter out the deleted blog from the state
+      setBlogs(blogs.filter((blog) => blog.BlogsID !== blogId));
     } catch (error) {
       console.error("Failed to delete blog: ", error);
     }
   };
 
   const handleUpdate = (blogId) => {
-    navigate("/updateBlog", { state: { blogId: blogId } });
+    navigate("/user/updateBlog", { state: { blogId: blogId } });
   };
 
   return (
@@ -64,8 +66,8 @@ export default function Home() {
               <article>
                 <div className="card position-relative">
                   <div className="card-header d-flex justify-content-end position-absolute top-0 end-0">
-                    <button className="btn btn-danger me-2" onClick={() => handleDelete(blog.id)}>Delete</button>
-                    <button className="btn btn-primary" onClick={() => handleUpdate(blog.id)}>Update</button>
+                    <button className="btn btn-danger me-2" onClick={() => handleDelete(blog.BlogsID)}>Delete</button>
+                    <button className="btn btn-primary" onClick={() => handleUpdate(blog.BlogsID)}>Update</button>
                   </div>
                   <img className="img-fluid m-0" loading="lazy" style={{ height: 300, borderRadius: '8px 8px 0px 0px' }} src={`${baseURL}${blog.Blog_Title_Image}`} alt="" />
                   <div className="card-body border bg-white p-4">

@@ -179,19 +179,6 @@ export default function Navbar2() {
               </a>
             </li>
             <li class="li-design1">
-              <a
-                className="my-nav-link1"
-                href="#"
-                onClick={() =>
-                  navigate("/user/Feedback", {
-                    state: { postId: 1, postType: "blog" },
-                  })
-                }
-              >
-                FeedBack
-              </a>
-            </li>
-            <li class="li-design1">
               <a class="my-nav-link1" href="#" onClick={handleLogout}>
                 Logout
               </a>
