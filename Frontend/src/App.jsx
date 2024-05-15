@@ -45,6 +45,8 @@ import AdminSignIn from "./pages/Admin/adminSignIn"
 import PaymentByCard from "./pages/Payment/payment_with _card"
 import UpdateBlog from "./pages/Home/updateblog"
 
+import AdminProtected from "./pages/AdminProtected"
+
 import { UserContext } from "./Context/UserContext";
 
 
@@ -129,13 +131,23 @@ function App() {
 
 
 
-        <Route path="/adminfeedback" element={<><AdminNavBar/><Adminfeedback/></>}></Route>
+        {/* <Route path="/adminfeedback" element={<><AdminNavBar/><Adminfeedback/></>}></Route>
         <Route path="/adminViewSocialPost" element={<><AdminNavBar/><AdminViewSocialPost/></>}></Route>
         <Route path="/adminViewBlogPost" element={<><AdminNavBar/><AdminViewBlogPost/></>}></Route>
         <Route path="/addads" element={<><AdminNavBar/><Adadds/></>}></Route>
         <Route path="/addNotification" element={<><AdminNavBar/><AddNotification/></>}></Route> 
+        <Route path="/Admin/adminSignin" element={<AdminSignIn/>}></Route> */}
+
+<Route path="/adminfeedback" element={<AdminProtected component={<><AdminNavBar/><Adminfeedback/></>} allowableUser="admin"/>}></Route>
+<Route path="/adminViewSocialPost" element={<AdminProtected component={<><AdminNavBar/><AdminViewSocialPost/></>} allowableUser="admin"/>}></Route>
+<Route path="/adminViewBlogPost" element={<AdminProtected component={<><AdminNavBar/><AdminViewBlogPost/></>} allowableUser="admin"/>}></Route>
+<Route path="/addads" element={<AdminProtected component={<><AdminNavBar/><Adadds/></>} allowableUser="admin"/>}></Route>
+<Route path="/addNotification" element={<AdminProtected component={<><AdminNavBar/><AddNotification/></>} allowableUser="admin"/>}></Route>
+<Route path="/Admin/adminSignin" element={<AdminSignIn/>}></Route>
+        
+        
         <Route path="/admin_check_payment" element={<><AdminNavBar/><AdminCheckPayment/></>}></Route>
-        <Route path="/Admin/adminSignin" element={<AdminSignIn/>}></Route>
+        
         <Route path="/user/Payment" element={<><UserPaymentpage/><Footerpage/></>}></Route>
         <Route path="/user/Paymen_with_card" element={<><PaymentByCard/><Footerpage/></>}></Route>
         

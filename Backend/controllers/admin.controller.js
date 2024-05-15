@@ -448,14 +448,11 @@ const paymentConfirmation = async (req, res) => {
 
 
 const signInAdmin = async (req, res) => {
-
-  
   try {
-    
     await sequelize.sync();
 
     const pass = req.body.pass;
-  console.log("-------", pass)
+    console.log("-------", pass);
 
     const admin = await Admin.findOne({
       where: {
@@ -464,36 +461,20 @@ const signInAdmin = async (req, res) => {
       }
     });
 
-    
-
     if (!admin) {
       console.error("Invalid Credentials!");
       res.status(401).send("Invalid Credentials");
     } else {
-      // Assuming admin also has an is_Online flag or similar
       admin.is_Online = true;
       await admin.save();
 
-      // Generate a token for the admin. Note that the 'role' is now 'admin'
-      const token = jwtToken.sign({ role: "admin" }, 'dfghjk');
-
-      // Fetching admin-specific info, assuming Admin model has a different structure
-      const admin_ID = await Admin.findOne({
-        attributes: ['AdminID', 'role'], // Adjust attribute names as necessary
-        where: {
-          Email: req.body.email
-        }
-      });
-
-      console.log(admin);
+      const token = jwtToken.sign({ id: admin.id, role: "admin" }, 'dfghjk');
 
       res.status(200).send({
-        admin_ID,
-        roles: token.role,
+        admin_ID: admin.id,
+        roles: "admin",
         accessToken: token
       });
-
-      res.send("admin loged in")
     }
   } catch (error) {
     console.error("Failed to sign in token not created: ", error);
@@ -502,15 +483,43 @@ const signInAdmin = async (req, res) => {
 };
 
 
+
+
+
 const Signup = async(req, res) =>{
 
   const admin = await Admin.create({
     Email: req.body.email,
-    Password: req.body.pass
+    Password: req.body.pass,
+    role:req.body.rol
   });
 
   console.log("signuped--in")
 }
+
+const logoutAdmin = async (req, res) => {
+  const adminId = req.query.id;
+  if (!adminId) {
+    return res.status(400).send("Admin ID must be provided");
+  }
+
+  try {
+    const admin = await Admin.findOne({ where: { id: adminId } });
+    if (!admin) {
+      return res.status(404).send("No admin found");
+    }
+
+    const updatedAdmin = await Admin.findOne({ where: { id: adminId } });
+    console.log(
+      "Successfully logged out. Admin is online:",
+    );
+
+    res.status(200).send(updatedAdmin);
+  } catch (error) {
+    console.error("Error during admin logout: ", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 
 
@@ -526,6 +535,7 @@ module.exports = {
   fetchAllPaymentData,
   paymentConfirmation,
   Signup,
-  signInAdmin
+  signInAdmin,
+  logoutAdmin
   
 };

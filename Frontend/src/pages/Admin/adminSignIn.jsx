@@ -20,11 +20,13 @@ function LoginForm() {
           email: email,
           pass: password,
         });
-
+  
         console.log(response);
-
+  
         if (response.status === 200) {
-          navigate("/adminFeedback");
+          const token = response.data.accessToken;
+          localStorage.setItem('admin', token);
+          navigate("/adminfeedback");
         } else {
           setErrorMessage("Invalid Credentials");
         }
@@ -36,6 +38,7 @@ function LoginForm() {
       setErrorMessage("Please ensure all fields are correctly filled out.");
     }
   };
+  
 
   return (
     <>

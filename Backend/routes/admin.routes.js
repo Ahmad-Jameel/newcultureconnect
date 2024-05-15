@@ -15,7 +15,7 @@ router.post("/paymentConfirmation", fuction.paymentConfirmation)
 
 router.post("/loginAdmin", fuction.signInAdmin)
 router.post("/signup", fuction.Signup)
-
+router.put('/logout', fuction.logoutAdmin);
 
 router.get('*', function(req, res){
     res.status(404).send('404 error: page not found');
