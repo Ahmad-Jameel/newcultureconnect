@@ -1289,7 +1289,6 @@ const searchUsersByName = async (req, res) => {
 };
 
 
-// Chat controller to start a new chat session or retrieve an existing one
 const startOrRetrieveChat = async (req, res) => {
   const { senderId, receiverId } = req.body;
 

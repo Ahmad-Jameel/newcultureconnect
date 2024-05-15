@@ -56,7 +56,6 @@ app.get("*", (req, res) => {
     res.status(404).send("404 Error: Page not found.");
 });
 
-
 io.on('connection', (socket) => {
   socket.on('join_room', async (roomId) => {
     socket.join(roomId);
@@ -89,10 +88,10 @@ io.on('connection', (socket) => {
 
     try {
       // Save the message to the database
-      const chat = await Chatbox.create({ sender_id: senderId, Receiver_Id: receiverId, message });
+      const chat = await Chatbox.create({ sender_id: senderId, Receiver_Id: receiverId, message, unread: true });
 
       // Emit the message to both the sender and the receiver
-      io.to(senderId).to(receiverId).emit('receive_message', { senderId, receiverId, message });
+      io.to(senderId).to(receiverId).emit('receive_message', { senderId, receiverId, message, unread: true });
       console.log(`Message from ${senderId} to ${receiverId}: ${message}`);
     } catch (error) {
       console.error("Error handling sending message:", error);
@@ -149,4 +148,3 @@ sequelize.sync().then(() => {
         console.log(`Server running on http://${hostname}:${port}/`);
     });
 });
-
