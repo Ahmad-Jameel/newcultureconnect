@@ -139,12 +139,7 @@ export default function Chatbox() {
 
     newSocket.on('load_messages', (data) => {
       const { messages, lastMessageTime } = data;
-    
-      if (!messages) {
-        console.error('Received messages are undefined or invalid:', data);
-        return;
-      }
-    
+  
       const updatedMessages = messages.reduce((acc, message) => {
         const { sender_id, Receiver_Id } = message;
         return {
@@ -153,11 +148,11 @@ export default function Chatbox() {
           [Receiver_Id]: [...(acc[Receiver_Id] || []), { ...message, senderId: sender_id, receiverId: Receiver_Id }]
         };
       }, {});
-    
+  
       setMessages(prev => ({ ...prev, ...updatedMessages }));
-    
+  
       setUsers(prevUsers => prevUsers.map(user =>
-        updatedMessages[user.UserID] ? { ...user, lastMessageTime: new Date(lastMessageTime) } : user
+        updatedMessages[user.UserID] ? { ...user, lastMessageTime } : user
       ));
     });
 
@@ -456,5 +451,3 @@ export default function Chatbox() {
     </div>
   );
 }
-
-
