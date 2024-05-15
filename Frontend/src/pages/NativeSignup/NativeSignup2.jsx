@@ -36,10 +36,12 @@ function LoginForm() {
           navigate("/user/Homepage");
         } else if (response.status === 401) {
           setErrorMessage("Invalid Credentials");
+          alert("Invalid Credentials");
         }
       } catch (error) {
         console.error(error);
         setErrorMessage("Invalid Credentials");
+        alert("Invalid Credentials");
       }
     } else {
       setErrorMessage("Please ensure all fields are correctly filled out.");
@@ -49,25 +51,20 @@ function LoginForm() {
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmail(value);
-    // Add email validation logic
-    setEmailError(!isValidEmail(value)); // Example isValidEmail function
+    
   };
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
-    // Add password validation logic
-    setPasswordError(!isValidPassword(value)); // Example isValidPassword function
+    
   };
 
-  // Example validation functions
   const isValidEmail = (email) => {
-    // Implement your email validation logic here
     return /\S+@\S+\.\S+/.test(email);
   };
 
   const isValidPassword = (password) => {
-    // Implement your password validation logic here
     return password.length >= 8;
   };
 
@@ -128,9 +125,7 @@ function LoginForm() {
                       value={email}
                       onChange={handleEmailChange}
                     />
-                    {emailError && (
-                      <span className="text-red-500">Invalid email format</span>
-                    )}
+                    
                     <label className="form-label" htmlFor="password">
                       Password
                     </label>
@@ -146,11 +141,7 @@ function LoginForm() {
                       value={password}
                       onChange={handlePasswordChange}
                     />
-                    {passwordError && (
-                      <span className="text-red-500">
-                        Password must be at least 8 characters long
-                      </span>
-                    )}
+                   
                     <a
                       className="text-indigo-700 hover:text-pink-700 text-sm float-left mt-1"
                       onClick={() =>

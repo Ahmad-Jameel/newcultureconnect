@@ -58,7 +58,7 @@ export default function Navbar2() {
       icon: "success",
     });
     console.log("Token has been Removed");
-    navigate("/user/signin");
+    navigate("/Landing");
   };
 
   const textStyle = {

@@ -10,7 +10,11 @@ const Admin = sequelize.define("admin", {
   Password: {
     type: DataTypes.STRING,
     allowNull: false,
-  }
+  },
+  role:{
+    type: DataTypes.STRING,
+      allowNull: false
+  },
 });
 
 module.exports = Admin;
